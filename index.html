@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-black text-white">
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>AirCast iOS - TV & Stream Control</title>
+  <title>AirCast - Direct Embed & Cast Hub</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
@@ -11,33 +11,32 @@
   <script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 
   <style>
-    /* iOS Modern Styling & Safe Areas */
+    /* iOS & Dark Theme Precision Styling */
     :root {
       --sat: env(safe-area-inset-top);
       --sab: env(safe-area-inset-bottom);
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
     .glass {
-      background: rgba(30, 30, 32, 0.75);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
     .glass-card {
-      background: rgba(45, 45, 50, 0.6);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
     .ios-btn:active {
       transform: scale(0.96);
-      opacity: 0.8;
+      opacity: 0.85;
     }
-    /* Hide scrollbars for slick look */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -47,241 +46,215 @@
     }
   </style>
 </head>
-<body class="h-full flex flex-col bg-black text-slate-100 overflow-hidden select-none">
+<body class="h-full flex flex-col bg-slate-950 text-slate-100 overflow-hidden select-none">
 
-  <!-- Top Navigation Bar -->
-  <header class="sticky top-0 z-40 glass px-4 pt-12 pb-3 flex items-center justify-between border-b border-white/10">
-    <div class="flex items-center space-x-2">
-      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-        <i data-lucide="tv" class="w-5 h-5 text-white"></i>
+  <!-- Top App Navigation -->
+  <header class="sticky top-0 z-40 glass px-4 pt-10 pb-3 flex items-center justify-between border-b border-white/10">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20">
+        <i data-lucide="play-circle" class="w-5 h-5 text-white"></i>
       </div>
       <div>
-        <h1 class="text-base font-bold tracking-tight text-white leading-none">AirCast iOS</h1>
-        <span class="text-[10px] text-blue-400 font-medium tracking-wide uppercase">Stream Hub</span>
+        <h1 class="text-base font-bold tracking-tight text-white leading-none">AirCast Direct</h1>
+        <span class="text-[10px] text-indigo-400 font-semibold tracking-wide uppercase">Direct Navigation & Cast</span>
       </div>
     </div>
 
-    <!-- Receiver Connection Status / Controls -->
     <div class="flex items-center space-x-2">
-      <!-- AirPlay Device Button (Native Safari) -->
+      <!-- AirPlay Launch Button -->
       <button id="airplayBtn" onclick="triggerAirPlay()" class="ios-btn hidden px-3 py-1.5 rounded-full glass-card hover:bg-white/20 text-xs font-semibold flex items-center space-x-1.5 text-blue-400 border border-blue-500/30">
         <i data-lucide="airplay" class="w-4 h-4"></i>
         <span>AirPlay</span>
       </button>
 
-      <!-- Google Cast Launcher Button -->
-      <button id="castBtn" class="ios-btn px-3 py-1.5 rounded-full glass-card hover:bg-white/20 text-xs font-semibold flex items-center space-x-1.5 text-slate-300 border border-white/10">
-        <i data-lucide="cast" class="w-4 h-4 text-blue-400"></i>
+      <!-- Google Cast Launch Button -->
+      <button id="castBtn" onclick="triggerCast()" class="ios-btn px-3 py-1.5 rounded-full glass-card hover:bg-white/20 text-xs font-semibold flex items-center space-x-1.5 text-slate-200 border border-white/10">
+        <i data-lucide="cast" class="w-4 h-4 text-indigo-400"></i>
         <span id="castStatusText">Cast</span>
       </button>
     </div>
   </header>
 
-  <!-- Main Scrollable Content Area -->
-  <main class="flex-1 overflow-y-auto no-scrollbar px-4 py-4 space-y-6 pb-28">
+  <!-- Main Scrollable Area -->
+  <main class="flex-1 overflow-y-auto no-scrollbar px-4 py-4 space-y-5 pb-24">
 
-    <!-- Media Source Selector -->
-    <section>
+    <!-- Direct Provider & Server Embed Engine Selector -->
+    <section class="glass-card rounded-2xl p-3 border border-white/10">
       <div class="flex items-center justify-between mb-2">
-        <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Stream Provider / Source</h2>
-        <span class="text-xs text-blue-400">Custom URL enabled</span>
+        <div class="flex items-center space-x-2">
+          <i data-lucide="server" class="w-4 h-4 text-indigo-400"></i>
+          <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Embed Provider Engine</h2>
+        </div>
+        <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30 font-medium">Bypass Next Buttons</span>
       </div>
-      <div class="flex space-x-2 overflow-x-auto no-scrollbar py-1">
-        <button onclick="setSource('dulo')" id="src-dulo" class="src-chip ios-btn px-4 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white shadow-md shadow-blue-600/30 flex items-center space-x-1.5 whitespace-nowrap">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <button onclick="setProvider('dulo')" id="prov-dulo" class="prov-btn ios-btn p-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white flex items-center justify-center space-x-1.5 shadow-md shadow-indigo-600/30">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+          <span>Dulo API Direct</span>
+        </button>
+        <button onclick="setProvider('vidsrc')" id="prov-vidsrc" class="prov-btn ios-btn p-2 rounded-xl text-xs font-semibold glass-card text-slate-300 flex items-center justify-center space-x-1.5">
           <i data-lucide="globe" class="w-3.5 h-3.5"></i>
-          <span>Dulo TV API</span>
+          <span>VidSrc Pro</span>
         </button>
-        <button onclick="setSource('superembed')" id="src-superembed" class="src-chip ios-btn px-4 py-2 rounded-xl text-xs font-semibold glass-card text-slate-300 flex items-center space-x-1.5 whitespace-nowrap">
+        <button onclick="setProvider('superembed')" id="prov-superembed" class="prov-btn ios-btn p-2 rounded-xl text-xs font-semibold glass-card text-slate-300 flex items-center justify-center space-x-1.5">
           <i data-lucide="film" class="w-3.5 h-3.5"></i>
-          <span>vidsrc Stream</span>
+          <span>SuperEmbed</span>
         </button>
-        <button onclick="setSource('custom')" id="src-custom" class="src-chip ios-btn px-4 py-2 rounded-xl text-xs font-semibold glass-card text-slate-300 flex items-center space-x-1.5 whitespace-nowrap">
-          <i data-lucide="link" class="w-3.5 h-3.5"></i>
-          <span>Custom Direct Link</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- Search Bar -->
-    <section class="relative">
-      <div class="relative flex items-center">
-        <i data-lucide="search" class="w-4 h-4 absolute left-3.5 text-slate-400 pointer-events-none"></i>
-        <input type="text" id="searchInput" placeholder="Search movies, shows or enter ID..." 
-               class="w-full bg-slate-900/80 border border-white/10 rounded-2xl pl-10 pr-10 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all">
-        <button onclick="clearSearch()" id="clearSearchBtn" class="hidden absolute right-3 text-slate-400 hover:text-white">
-          <i data-lucide="x-circle" class="w-4 h-4"></i>
+        <button onclick="setProvider('2embed')" id="prov-2embed" class="prov-btn ios-btn p-2 rounded-xl text-xs font-semibold glass-card text-slate-300 flex items-center justify-center space-x-1.5">
+          <i data-lucide="link-2" class="w-3.5 h-3.5"></i>
+          <span>2Embed API</span>
         </button>
       </div>
     </section>
 
-    <!-- Show Picker / Results Grid -->
-    <section>
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-sm font-bold text-slate-200">Featured Shows & Movies</h2>
-        <span id="resultCount" class="text-xs text-slate-400">4 Featured</span>
+    <!-- Direct ID / Title Search & Jump -->
+    <section class="glass-card rounded-2xl p-3 border border-white/10 space-y-3">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold text-slate-300 uppercase">Direct ID / Title Search</span>
+        <span class="text-[10px] text-slate-400">Supports TMDB ID or IMDb ID</span>
       </div>
-      <div id="showGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        <!-- Show cards dynamically inserted here -->
-      </div>
-    </section>
-
-    <!-- Detailed Season & Episode Picker (Visible on Show Select) -->
-    <section id="episodePickerSection" class="glass-card rounded-2xl p-4 border border-blue-500/20 shadow-2xl relative overflow-hidden hidden">
-      <div class="flex items-start space-x-3 mb-4">
-        <img id="selectedPoster" src="" class="w-20 h-28 object-cover rounded-xl shadow-lg border border-white/10" alt="Poster" />
-        <div class="flex-1 min-w-0">
-          <span id="selectedCategory" class="text-[10px] font-bold text-blue-400 uppercase tracking-widest bg-blue-500/10 px-2 py-0.5 rounded-full">TV Series</span>
-          <h3 id="selectedTitle" class="text-lg font-bold text-white truncate mt-1">Show Title</h3>
-          <p id="selectedOverview" class="text-xs text-slate-400 line-clamp-2 mt-1">Show description...</p>
-          
-          <div class="mt-3 flex items-center space-x-2">
-            <!-- Season Dropdown Select -->
-            <label class="text-xs text-slate-400">Season:</label>
-            <select id="seasonSelect" onchange="onSeasonChange()" class="bg-slate-800 text-white text-xs font-semibold rounded-lg px-2.5 py-1.5 border border-white/15 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <!-- Options populated by JS -->
-            </select>
-          </div>
+      <div class="relative flex items-center gap-2">
+        <div class="relative flex-1">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 text-slate-400 pointer-events-none"></i>
+          <input type="text" id="searchInput" placeholder="Search title or enter TMDB ID (e.g., 66732)..." 
+                 class="w-full bg-slate-900/90 border border-white/10 rounded-xl pl-10 pr-9 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <button onclick="clearSearch()" id="clearSearchBtn" class="hidden absolute right-3 text-slate-400 hover:text-white">
+            <i data-lucide="x-circle" class="w-4 h-4"></i>
+          </button>
         </div>
-      </div>
-
-      <!-- Episode Grid/List -->
-      <div>
-        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Select Episode</h4>
-        <div id="episodeGrid" class="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-48 overflow-y-auto no-scrollbar pr-1">
-          <!-- Episode numbers generated dynamically -->
-        </div>
+        <button onclick="handleManualIdLoad()" class="ios-btn bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-1 shadow-lg shadow-indigo-600/30">
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          <span>Load</span>
+        </button>
       </div>
     </section>
 
-    <!-- Custom URL Input Area (Shown when custom source is active) -->
-    <section id="customUrlSection" class="glass-card rounded-2xl p-4 hidden space-y-3">
-      <h3 class="text-xs font-bold text-slate-300 uppercase">Direct Stream URL</h3>
-      <input type="text" id="customUrlInput" placeholder="https://example.com/video.mp4 or m3u8 stream"
-             class="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <button onclick="loadCustomUrl()" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded-xl transition">
-        Load Stream to Player
-      </button>
-    </section>
-
-    <!-- HTML5 Video Player Container -->
-    <section class="glass-card rounded-2xl p-3 border border-white/10 shadow-xl space-y-3">
+    <!-- LIVE EMBED PLAYER CONTAINER -->
+    <section class="glass-card rounded-2xl p-3 border border-white/10 shadow-2xl space-y-3">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
-          <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Active Player</h3>
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></div>
+          <h3 id="playerTitle" class="text-xs font-bold text-slate-200 uppercase tracking-wider truncate max-w-[200px]">Stranger Things</h3>
         </div>
-        <span id="playingEpisodeBadge" class="text-[10px] font-semibold bg-white/10 px-2 py-0.5 rounded-md text-slate-300">S1:E1 Selected</span>
+        <span id="playingEpisodeBadge" class="text-[10px] font-bold bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-md border border-indigo-500/30">S1:E1 Direct Embed</span>
       </div>
 
-      <!-- Video Element -->
-      <div class="relative bg-black rounded-xl overflow-hidden aspect-video border border-white/10 flex items-center justify-center group">
-        <video id="mainVideo" class="w-full h-full object-contain" controls x-webkit-airplay="allow" webkit-playsinline playsinline>
-          <source id="videoSource" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
-          Your browser does not support video playback.
-        </video>
+      <!-- Iframe Video Container -->
+      <div class="relative bg-black rounded-xl overflow-hidden aspect-video border border-white/10 shadow-inner group">
+        <iframe id="embedPlayer" src="" class="w-full h-full border-0" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+        
+        <!-- Quick Overlay Controls for Casting / Popping Out -->
+        <div class="absolute bottom-2 right-2 flex items-center space-x-2 bg-black/80 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-white/10 opacity-80 hover:opacity-100 transition">
+          <button onclick="popoutPlayer()" title="Open Direct Player Window" class="text-slate-300 hover:text-white">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="triggerCast()" title="Cast to TV" class="text-indigo-400 hover:text-indigo-300">
+            <i data-lucide="cast" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
       </div>
 
-      <!-- Control Shortcuts Bar -->
-      <div class="flex items-center justify-between pt-1">
-        <div class="flex items-center space-x-2">
-          <button onclick="skipTime(-10)" class="ios-btn p-2 rounded-xl bg-slate-800 text-slate-200 hover:text-white hover:bg-slate-700">
-            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-          </button>
-          <button onclick="togglePlay()" class="ios-btn p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-500">
-            <i id="playIcon" data-lucide="play" class="w-4 h-4"></i>
-          </button>
-          <button onclick="skipTime(10)" class="ios-btn p-2 rounded-xl bg-slate-800 text-slate-200 hover:text-white hover:bg-slate-700">
-            <i data-lucide="rotate-cw" class="w-4 h-4"></i>
-          </button>
-        </div>
+      <!-- Quick Episode Switcher Bar (Direct Jump - Skip Site Next Buttons) -->
+      <div class="flex items-center justify-between pt-1 text-xs">
+        <button onclick="jumpEpisode(-1)" class="ios-btn px-3 py-1.5 rounded-xl bg-slate-900 border border-white/10 text-slate-300 hover:text-white flex items-center space-x-1">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          <span>Prev Ep</span>
+        </button>
+        <span id="currentEpLabel" class="font-bold text-indigo-400 text-xs">Season 1 • Episode 1</span>
+        <button onclick="jumpEpisode(1)" class="ios-btn px-3 py-1.5 rounded-xl bg-slate-900 border border-white/10 text-slate-300 hover:text-white flex items-center space-x-1">
+          <span>Next Ep</span>
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </section>
 
-        <div class="flex items-center space-x-2">
-          <button onclick="triggerAirPlay()" class="ios-btn px-3 py-1.5 rounded-xl bg-slate-800 text-blue-400 hover:bg-slate-700 flex items-center space-x-1 text-xs font-medium">
-            <i data-lucide="airplay" class="w-4 h-4"></i>
-            <span class="hidden sm:inline">Apple TV</span>
-          </button>
-          <button onclick="triggerCast()" class="ios-btn px-3 py-1.5 rounded-xl bg-slate-800 text-blue-400 hover:bg-slate-700 flex items-center space-x-1 text-xs font-medium">
-            <i data-lucide="cast" class="w-4 h-4"></i>
-            <span class="hidden sm:inline">Chromecast</span>
-          </button>
+    <!-- DIRECT SEASON & EPISODE SELECTOR GRID (NO NEXT-BUTTON MAPPING NEEDED) -->
+    <section id="episodeMatrixSection" class="glass-card rounded-2xl p-4 border border-indigo-500/20 shadow-xl space-y-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Direct Season & Episode Selector</h3>
+          <p class="text-[10px] text-slate-400">Tap any episode below to immediately stream without clicking through site pages.</p>
         </div>
+        <select id="seasonSelect" onchange="onSeasonChange()" class="bg-slate-900 text-indigo-300 text-xs font-bold rounded-xl px-3 py-1.5 border border-indigo-500/30 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <!-- Populated by JS -->
+        </select>
+      </div>
+
+      <div id="episodeGrid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 pt-2">
+        <!-- Episode Quick Jump Buttons dynamically rendered here -->
+      </div>
+    </section>
+
+    <!-- Catalog Shows Matrix -->
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Quick Select Library</h2>
+        <span id="resultCount" class="text-[10px] text-slate-400">4 Items</span>
+      </div>
+      <div id="showGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <!-- Dynamic Cards -->
       </div>
     </section>
 
   </main>
 
-  <!-- iOS Bottom Navigation Bar -->
-  <nav class="fixed bottom-0 left-0 right-0 glass border-t border-white/10 px-6 py-2 flex justify-around items-center z-50">
-    <button onclick="setActiveTab('home')" id="tab-home" class="flex flex-col items-center space-y-1 text-blue-500">
-      <i data-lucide="tv" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium">Catalog</span>
-    </button>
-    <button onclick="setActiveTab('favorites')" id="tab-favorites" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-200">
-      <i data-lucide="bookmark" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium">Saved</span>
-    </button>
-    <button onclick="setActiveTab('settings')" id="tab-settings" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-200">
-      <i data-lucide="sliders" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium">Settings</span>
-    </button>
-  </nav>
-
   <!-- Notification Toast -->
-  <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 bg-slate-800/90 border border-white/20 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center space-x-2">
-    <i data-lucide="info" class="w-4 h-4 text-blue-400"></i>
-    <span id="toastMsg">Notification message</span>
+  <div id="toast" class="fixed top-14 left-1/2 -translate-x-1/2 bg-slate-900 border border-indigo-500/40 text-slate-100 text-xs font-medium px-4 py-2.5 rounded-full shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center space-x-2">
+    <i data-lucide="info" class="w-4 h-4 text-indigo-400"></i>
+    <span id="toastMsg">Direct stream updated</span>
   </div>
 
+  <!-- JavaScript Logic for Direct Embeds & Casting -->
   <script>
-    // Sample TV Shows Data Catalog
+    // Real Catalog with TMDB IDs for Direct API Player Routing
     const showCatalog = [
       {
-        id: "tmdb-1",
+        id: "tmdb-66732",
+        tmdbId: "66732",
         title: "Stranger Things",
         type: "series",
         seasons: 4,
         episodesPerSeason: [8, 9, 8, 9],
         poster: "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=400&auto=format&fit=crop&q=80",
-        overview: "When a young boy vanishes, a small town uncovers a mystery involving secret experiments and terrifying supernatural forces.",
-        streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+        overview: "Direct bypass stream for Stranger Things without navigating season buttons."
       },
       {
-        id: "tmdb-2",
+        id: "tmdb-82856",
+        tmdbId: "82856",
         title: "The Mandalorian",
         type: "series",
         seasons: 3,
         episodesPerSeason: [8, 8, 8],
         poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&auto=format&fit=crop&q=80",
-        overview: "The travels of a lone bounty hunter in the outer reaches of the galaxy, far from the authority of the New Republic.",
-        streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+        overview: "Direct jump to any Mandalorian chapter with casting support."
       },
       {
-        id: "tmdb-3",
+        id: "tmdb-105248",
+        tmdbId: "105248",
         title: "Cyberpunk: Edgerunners",
         type: "series",
         seasons: 1,
         episodesPerSeason: [10],
         poster: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=400&auto=format&fit=crop&q=80",
-        overview: "A street kid trying to survive in a technology and body modification-obsessed city of the future.",
-        streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+        overview: "Stream Cyberpunk Edgerunners episodes straight to TV."
       },
       {
-        id: "tmdb-4",
-        title: "Cosmic Odyssey",
+        id: "tmdb-299536",
+        tmdbId: "299536",
+        title: "Avengers: Infinity War",
         type: "movie",
         seasons: 0,
         episodesPerSeason: [],
         poster: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&auto=format&fit=crop&q=80",
-        overview: "An epic interstellar journey across galaxy clusters and deep space visual phenomena.",
-        streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+        overview: "Feature film direct stream."
       }
     ];
 
-    // State
-    let currentSource = 'dulo';
-    let selectedShow = null;
-    let selectedSeasonNum = 1;
-    let selectedEpisodeNum = 1;
+    // State Variables
+    let currentProvider = 'dulo';
+    let activeShow = showCatalog[0];
+    let activeSeason = 1;
+    let activeEpisode = 1;
     let castSession = null;
 
     // Initialization
@@ -289,248 +262,219 @@
       lucide.createIcons();
       renderCatalog(showCatalog);
       checkAirPlaySupport();
-      setupSearchListener();
-
-      // Automatically select the first show for immediate playability
+      setupSearch();
+      
+      // Load initial default show
       selectShow(showCatalog[0].id);
     });
 
-    // Render Catalog Grid
-    function renderCatalog(items) {
-      const grid = document.getElementById('showGrid');
-      document.getElementById('resultCount').innerText = `${items.length} Items`;
-
-      grid.innerHTML = items.map(show => `
-        <div onclick="selectShow('${show.id}')" class="ios-btn glass-card rounded-xl overflow-hidden border border-white/10 group cursor-pointer">
-          <div class="relative aspect-[2/3]">
-            <img src="${show.poster}" alt="${show.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-            <span class="absolute top-2 right-2 text-[9px] font-bold px-1.5 py-0.5 rounded ${show.type === 'series' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'} uppercase">
-              ${show.type}
-            </span>
-          </div>
-          <div class="p-2.5">
-            <h3 class="text-xs font-bold text-white truncate">${show.title}</h3>
-            <p class="text-[10px] text-slate-400 mt-0.5">
-              ${show.type === 'series' ? `${show.seasons} Seasons` : 'Movie'}
-            </p>
-          </div>
-        </div>
-      `).join('');
+    // Provider Resolver Generator
+    function generateEmbedUrl(provider, mediaType, tmdbId, season = 1, episode = 1) {
+      if (mediaType === 'movie') {
+        switch(provider) {
+          case 'dulo': return `https://dulo.mov/embed/movie/${tmdbId}`;
+          case 'vidsrc': return `https://vidsrc.to/embed/movie/${tmdbId}`;
+          case 'superembed': return `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1`;
+          case '2embed': return `https://www.2embed.cc/embed/${tmdbId}`;
+          default: return `https://vidsrc.to/embed/movie/${tmdbId}`;
+        }
+      } else {
+        switch(provider) {
+          case 'dulo': return `https://dulo.mov/embed/tv/${tmdbId}/${season}/${episode}`;
+          case 'vidsrc': return `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`;
+          case 'superembed': return `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
+          case '2embed': return `https://www.2embed.cc/embedtv/${tmdbId}&s=${season}&e=${episode}`;
+          default: return `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`;
+        }
+      }
     }
 
-    function selectShow(showId) {
-      selectedShow = showCatalog.find(s => s.id === showId);
-      if (!selectedShow) return;
+    // Load Stream into Player directly bypassing site pagination
+    function updatePlayerStream() {
+      if (!activeShow) return;
 
-      const pickerSection = document.getElementById('episodePickerSection');
-      pickerSection.classList.remove('hidden');
+      const iframe = document.getElementById('embedPlayer');
+      const url = generateEmbedUrl(currentProvider, activeShow.type, activeShow.tmdbId, activeSeason, activeEpisode);
+      
+      iframe.src = url;
 
-      document.getElementById('selectedTitle').innerText = selectedShow.title;
-      document.getElementById('selectedOverview').innerText = selectedShow.overview;
-      document.getElementById('selectedPoster').src = selectedShow.poster;
-      document.getElementById('selectedCategory').innerText = selectedShow.type === 'series' ? 'TV Series' : 'Feature Film';
+      // Update UI Status Elements
+      document.getElementById('playerTitle').innerText = activeShow.title;
+      const epBadge = document.getElementById('playingEpisodeBadge');
+      const epLabel = document.getElementById('currentEpLabel');
 
-      const seasonSelect = document.getElementById('seasonSelect');
-      seasonSelect.innerHTML = '';
-
-      if (selectedShow.type === 'series') {
-        for (let i = 1; i <= selectedShow.seasons; i++) {
-          const opt = document.createElement('option');
-          opt.value = i;
-          opt.innerText = `Season ${i}`;
-          seasonSelect.appendChild(opt);
-        }
-        seasonSelect.disabled = false;
-        selectedSeasonNum = 1;
-        renderEpisodes(1);
+      if (activeShow.type === 'series') {
+        epBadge.innerText = `S${activeSeason}:E${activeEpisode} Direct`;
+        epLabel.innerText = `Season ${activeSeason} • Episode ${activeEpisode}`;
       } else {
-        const opt = document.createElement('option');
-        opt.value = 0;
-        opt.innerText = 'N/A';
-        seasonSelect.appendChild(opt);
-        seasonSelect.disabled = true;
-        renderEpisodes(0);
+        epBadge.innerText = `Movie Stream`;
+        epLabel.innerText = `Feature Film`;
       }
 
-      showToast(`Selected ${selectedShow.title}`);
+      showToast(`Loaded ${activeShow.title} (S${activeSeason}:E${activeEpisode})`);
+    }
+
+    // Direct Show Selection
+    function selectShow(showId) {
+      activeShow = showCatalog.find(s => s.id === showId) || showCatalog[0];
+      activeSeason = 1;
+      activeEpisode = 1;
+
+      setupSeasonDropdown();
+      renderEpisodeGrid();
+      updatePlayerStream();
+    }
+
+    function setupSeasonDropdown() {
+      const select = document.getElementById('seasonSelect');
+      select.innerHTML = '';
+
+      if (activeShow.type === 'series') {
+        select.disabled = false;
+        for (let s = 1; s <= activeShow.seasons; s++) {
+          const opt = document.createElement('option');
+          opt.value = s;
+          opt.innerText = `Season ${s}`;
+          select.appendChild(opt);
+        }
+      } else {
+        select.disabled = true;
+        const opt = document.createElement('option');
+        opt.value = 0;
+        opt.innerText = 'Movie N/A';
+        select.appendChild(opt);
+      }
     }
 
     function onSeasonChange() {
-      const seasonVal = parseInt(document.getElementById('seasonSelect').value);
-      selectedSeasonNum = seasonVal;
-      renderEpisodes(seasonVal);
+      activeSeason = parseInt(document.getElementById('seasonSelect').value) || 1;
+      activeEpisode = 1;
+      renderEpisodeGrid();
+      updatePlayerStream();
     }
 
-    function renderEpisodes(season) {
-      const episodeGrid = document.getElementById('episodeGrid');
-      episodeGrid.innerHTML = '';
+    function renderEpisodeGrid() {
+      const grid = document.getElementById('episodeGrid');
+      grid.innerHTML = '';
 
-      if (!selectedShow || selectedShow.type !== 'series') {
-        episodeGrid.innerHTML = `<button onclick="playEpisode(1)" class="p-3 bg-blue-600 text-white text-xs font-bold rounded-xl col-span-full">Play Full Movie</button>`;
+      if (activeShow.type !== 'series') {
+        grid.innerHTML = `
+          <button onclick="updatePlayerStream()" class="col-span-full py-2.5 bg-indigo-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-indigo-600/30">
+            Play Full Movie Direct
+          </button>`;
         return;
       }
 
-      const count = selectedShow.episodesPerSeason[season - 1] || 8;
-      for (let ep = 1; ep <= count; ep++) {
-        const activeClass = (selectedSeasonNum === season && selectedEpisodeNum === ep)
-          ? 'bg-blue-600 text-white font-bold shadow-lg shadow-blue-500/30 ring-2 ring-white/20'
+      const totalEpisodes = activeShow.episodesPerSeason[activeSeason - 1] || 10;
+      for (let ep = 1; ep <= totalEpisodes; ep++) {
+        const isActive = (ep === activeEpisode);
+        const btnClass = isActive 
+          ? 'bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-600/30 ring-2 ring-indigo-400' 
           : 'glass-card text-slate-300 hover:bg-white/20';
 
-        episodeGrid.innerHTML += `
-          <button onclick="playEpisode(${ep})" class="ios-btn py-2 rounded-xl text-xs flex flex-col items-center justify-center transition ${activeClass}">
+        grid.innerHTML += `
+          <button onclick="jumpToEpisode(${ep})" class="ios-btn py-2 rounded-xl text-xs flex flex-col items-center justify-center transition ${btnClass}">
             <span class="text-[9px] text-slate-400">EP</span>
-            <span>${ep}</span>
+            <span class="font-bold">${ep}</span>
           </button>
         `;
       }
     }
 
-    function playEpisode(epNum) {
-      selectedEpisodeNum = epNum;
-      if (selectedShow && selectedShow.type === 'series') {
-        renderEpisodes(selectedSeasonNum);
-      }
-
-      const video = document.getElementById('mainVideo');
-      const videoSource = document.getElementById('videoSource');
-      const badge = document.getElementById('playingEpisodeBadge');
-
-      if (selectedShow) {
-        // Construct Stream URL according to chosen source (e.g. dulo API emulation)
-        let resolvedUrl = selectedShow.streamUrl;
-        
-        if (currentSource === 'dulo') {
-          // Simulated Dulo Provider Route
-          resolvedUrl = `${selectedShow.streamUrl}?provider=dulo&s=${selectedSeasonNum}&e=${selectedEpisodeNum}`;
-        }
-
-        videoSource.src = selectedShow.streamUrl; // Using valid MP4 sample for functional preview
-        video.load();
-        video.play().catch(() => {});
-
-        badge.innerText = selectedShow.type === 'series' 
-          ? `S${selectedSeasonNum}:E${selectedEpisodeNum} - ${selectedShow.title}`
-          : selectedShow.title;
-
-        showToast(`Loading S${selectedSeasonNum}:E${selectedEpisodeNum}...`);
-      }
+    function jumpToEpisode(epNum) {
+      activeEpisode = epNum;
+      renderEpisodeGrid();
+      updatePlayerStream();
     }
 
-    function checkAirPlaySupport() {
-      const airplayBtn = document.getElementById('airplayBtn');
-      if (window.WebKitPlaybackTargetPickerEvent) {
-        airplayBtn.classList.remove('hidden');
-      }
-    }
+    function jumpEpisode(delta) {
+      if (activeShow.type !== 'series') return;
+      const maxEp = activeShow.episodesPerSeason[activeSeason - 1] || 10;
+      let newEp = activeEpisode + delta;
 
-    function triggerAirPlay() {
-      const video = document.getElementById('mainVideo');
-      if (video.webkitShowPlaybackTargetPicker) {
-        video.webkitShowPlaybackTargetPicker();
+      if (newEp >= 1 && newEp <= maxEp) {
+        activeEpisode = newEp;
+        renderEpisodeGrid();
+        updatePlayerStream();
       } else {
-        showToast('AirPlay is native to Safari on iOS devices.');
+        showToast(`Reached limit for Season ${activeSeason}`);
       }
     }
 
-    // Google Cast Initialization
-    window.__onGCastApiAvailable = function(isAvailable) {
-      if (isAvailable) {
-        initializeCastApi();
-      }
-    };
-
-    function initializeCastApi() {
-      cast.framework.CastContext.getInstance().setOptions({
-        receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
-        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-      });
-      
-      const context = cast.framework.CastContext.getInstance();
-      context.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, (event) => {
-        if (event.sessionState === cast.framework.SessionState.SESSION_STARTED) {
-          castSession = context.getCurrentSession();
-          document.getElementById('castStatusText').innerText = 'Connected';
-          showToast('Connected to Smart TV / Chromecast');
-          castCurrentMedia();
-        }
-      });
-    }
-
-    function triggerCast() {
-      if (window.chrome && chrome.cast) {
-        cast.framework.CastContext.getInstance().requestSession();
-      } else {
-        showToast('Google Cast SDK available on Chrome/Cast-ready browsers.');
-      }
-    }
-
-    function castCurrentMedia() {
-      if (!castSession) return;
-      const mediaInfo = new chrome.cast.media.MediaInfo(
-        document.getElementById('videoSource').src,
-        'video/mp4'
-      );
-      const request = new chrome.cast.media.LoadRequest(mediaInfo);
-      castSession.loadMedia(request).then(
-        () => showToast('Playing on Streamer / TV'),
-        (err) => console.log('Cast error', err)
-      );
-    }
-
-    function togglePlay() {
-      const video = document.getElementById('mainVideo');
-      const playIcon = document.getElementById('playIcon');
-      if (video.paused) {
-        video.play();
-        playIcon.setAttribute('data-lucide', 'pause');
-      } else {
-        video.pause();
-        playIcon.setAttribute('data-lucide', 'play');
-      }
-      lucide.createIcons();
-    }
-
-    function skipTime(seconds) {
-      const video = document.getElementById('mainVideo');
-      video.currentTime += seconds;
-    }
-
-    function setSource(src) {
-      currentSource = src;
-      document.querySelectorAll('.src-chip').forEach(btn => {
-        btn.classList.remove('bg-blue-600', 'text-white', 'shadow-blue-600/30');
+    // Set Stream Provider
+    function setProvider(prov) {
+      currentProvider = prov;
+      document.querySelectorAll('.prov-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-indigo-600/30');
         btn.classList.add('glass-card', 'text-slate-300');
       });
 
-      const activeBtn = document.getElementById(`src-${src}`);
+      const activeBtn = document.getElementById(`prov-${prov}`);
       if (activeBtn) {
         activeBtn.classList.remove('glass-card', 'text-slate-300');
-        activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-blue-600/30');
+        activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-indigo-600/30');
       }
 
-      const customSection = document.getElementById('customUrlSection');
-      if (src === 'custom') {
-        customSection.classList.remove('hidden');
+      updatePlayerStream();
+    }
+
+    // Direct Manual TMDB / IMDb ID Loader
+    function handleManualIdLoad() {
+      const input = document.getElementById('searchInput').value.trim();
+      if (!input) return;
+
+      // Check if user entered numeric TMDB ID directly
+      if (/^\d+$/.test(input)) {
+        activeShow = {
+          id: `custom-${input}`,
+          tmdbId: input,
+          title: `Show ID ${input}`,
+          type: "series",
+          seasons: 5,
+          episodesPerSeason: [10, 10, 10, 10, 10],
+          poster: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=400&auto=format&fit=crop&q=80",
+          overview: "Custom loaded series by ID"
+        };
+        activeSeason = 1;
+        activeEpisode = 1;
+        setupSeasonDropdown();
+        renderEpisodeGrid();
+        updatePlayerStream();
       } else {
-        customSection.classList.add('hidden');
+        // Search in local catalog
+        const match = showCatalog.find(s => s.title.toLowerCase().includes(input.toLowerCase()));
+        if (match) {
+          selectShow(match.id);
+        } else {
+          showToast('Title not found in local quick list. Loaded as TMDB ID.');
+        }
       }
-
-      showToast(`Source updated: ${src.toUpperCase()}`);
     }
 
-    function loadCustomUrl() {
-      const url = document.getElementById('customUrlInput').value.trim();
-      if (!url) return;
-      const video = document.getElementById('mainVideo');
-      const videoSource = document.getElementById('videoSource');
-      videoSource.src = url;
-      video.load();
-      video.play().catch(() => {});
-      showToast('Loaded custom stream');
+    // Catalog Renderer
+    function renderCatalog(items) {
+      const grid = document.getElementById('showGrid');
+      document.getElementById('resultCount').innerText = `${items.length} Items`;
+
+      grid.innerHTML = items.map(show => `
+        <div onclick="selectShow('${show.id}')" class="ios-btn glass-card rounded-xl overflow-hidden border border-white/10 group cursor-pointer hover:border-indigo-500/50 transition">
+          <div class="relative aspect-[2/3]">
+            <img src="${show.poster}" alt="${show.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+            <span class="absolute top-2 right-2 text-[9px] font-bold px-2 py-0.5 rounded-full ${show.type === 'series' ? 'bg-indigo-600 text-white' : 'bg-purple-600 text-white'} uppercase shadow">
+              ${show.type}
+            </span>
+          </div>
+          <div class="p-2.5">
+            <h3 class="text-xs font-bold text-white truncate">${show.title}</h3>
+            <p class="text-[10px] text-slate-400 mt-0.5">TMDB ID: ${show.tmdbId}</p>
+          </div>
+        </div>
+      `).join('');
     }
 
-    function setupSearchListener() {
+    // Search Box Listener
+    function setupSearch() {
       const input = document.getElementById('searchInput');
       const clearBtn = document.getElementById('clearSearchBtn');
 
@@ -538,34 +482,54 @@
         const query = e.target.value.toLowerCase().trim();
         clearBtn.classList.toggle('hidden', query.length === 0);
 
-        const filtered = showCatalog.filter(show => 
-          show.title.toLowerCase().includes(query) || 
-          show.overview.toLowerCase().includes(query)
-        );
+        const filtered = showCatalog.filter(s => s.title.toLowerCase().includes(query) || s.tmdbId.includes(query));
         renderCatalog(filtered);
       });
     }
 
     function clearSearch() {
-      const input = document.getElementById('searchInput');
-      input.value = '';
+      document.getElementById('searchInput').value = '';
       document.getElementById('clearSearchBtn').classList.add('hidden');
       renderCatalog(showCatalog);
     }
 
-    function setActiveTab(tab) {
-      const tabs = ['home', 'favorites', 'settings'];
-      tabs.forEach(t => {
-        const btn = document.getElementById(`tab-${t}`);
-        if (t === tab) {
-          btn.classList.add('text-blue-500');
-          btn.classList.remove('text-slate-400');
-        } else {
-          btn.classList.remove('text-blue-500');
-          btn.classList.add('text-slate-400');
-        }
-      });
-      showToast(`Switched to ${tab.toUpperCase()}`);
+    function popoutPlayer() {
+      const url = generateEmbedUrl(currentProvider, activeShow.type, activeShow.tmdbId, activeSeason, activeEpisode);
+      window.open(url, '_blank');
+    }
+
+    // Google Cast SDK Initialization
+    window.__onGCastApiAvailable = function(isAvailable) {
+      if (isAvailable) {
+        cast.framework.CastContext.getInstance().setOptions({
+          receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+          autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+        });
+      }
+    };
+
+    function triggerCast() {
+      if (window.chrome && chrome.cast) {
+        cast.framework.CastContext.getInstance().requestSession().then(
+          () => {
+            document.getElementById('castStatusText').innerText = 'Connected';
+            showToast('Cast Connected to Smart TV');
+          },
+          (err) => console.log('Cast cancelled or unavailable', err)
+        );
+      } else {
+        showToast('Google Cast available on Chrome / Android / TV devices.');
+      }
+    }
+
+    function checkAirPlaySupport() {
+      if (window.WebKitPlaybackTargetPickerEvent) {
+        document.getElementById('airplayBtn').classList.remove('hidden');
+      }
+    }
+
+    function triggerAirPlay() {
+      showToast('AirPlay active. Connect via iOS Control Center or Safari playback bar.');
     }
 
     function showToast(msg) {
